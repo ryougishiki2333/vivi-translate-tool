@@ -9,20 +9,18 @@ import sys
 import json
 import os
 
-# 强制设置 UTF-8 编码
+# 设置 UTF-8 环境变量（更安全的方式）
 if sys.platform == 'win32':
-    import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+    import io
+    # 重新配置 stdout 为 UTF-8，但保持文本模式
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', line_buffering=True)
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', line_buffering=True)
 
 # 添加 lib 目录到 Python 路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
 lib_path = os.path.join(current_dir, 'lib')
 if lib_path not in sys.path:
     sys.path.insert(0, lib_path)
-
-# 确保能找到 KeywordGacha 的模块
-sys.path.append(os.path.join(current_dir, 'lib/KeywordGacha'))
 
 # 确保能找到 KeywordGacha 的模块
 sys.path.append(os.path.join(current_dir, 'lib/KeywordGacha'))
@@ -67,14 +65,14 @@ def handle_message(message):
             send_message('translate_result', {
                 'success': True,
                 'original': text,
-                'translated': f'[已翻译] {text}'
+                'translated': f'[Translated] {text}'
             })
             
         elif msg_type == 'ping':
             # 健康检查
             send_message('pong', {
                 'status': 'ok',
-                'message': 'Python 后端正常运行',
+                'message': 'Python backend is running normally',
                 'timestamp': str(os.times())
             })
             
@@ -82,13 +80,13 @@ def handle_message(message):
             # 测试消息
             send_message('test_response', {
                 'success': True,
-                'message': '🎉 测试成功！Python 后端通信正常',
+                'message': 'Test successful! Python backend communication is normal',
                 'echo': payload
             })
             
         else:
             send_message('error', {
-                'message': f'未知的消息类型: {msg_type}'
+                'message': f'Unknown message type: {msg_type}'
             })
             
     except Exception as e:

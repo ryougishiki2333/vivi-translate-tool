@@ -54,6 +54,8 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  console.log('[INIT] Starting Python Shell initialization...')
+
   // 初始化 Python Shell
   // 根据开发/生产环境确定 Python 路径
   let pythonPath: string
@@ -77,11 +79,25 @@ app.whenReady().then(() => {
     console.log('[PROD] Python Path:', pythonPath)
   }
 
-  const pyshell = new PythonShell('python/main.py', {
-    mode: 'json',
-    pythonPath: pythonPath,
-    scriptPath: scriptPath
-  })
+  console.log('[Python Shell] Starting Python process...')
+  console.log('[Python Shell] Script: python/main.py')
+  console.log('[Python Shell] Python:', pythonPath)
+  console.log('[Python Shell] ScriptPath:', scriptPath)
+
+  let pyshell: PythonShell
+  
+  try {
+    pyshell = new PythonShell('python/main.py', {
+      mode: 'json',
+      pythonPath: pythonPath,
+      scriptPath: scriptPath
+    })
+    
+    console.log('[Python Shell] Process created, waiting for messages...')
+  } catch (err) {
+    console.error('[Python Shell] Failed to create process:', err)
+    throw err
+  }
 
   pyshell.on('message', function (message) {
     console.log('[Python Message]', message.type, ':', JSON.stringify(message.data, null, 2))
