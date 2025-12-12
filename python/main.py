@@ -49,23 +49,37 @@ def handle_message(message):
         payload = message.get('payload', {})
         
         if msg_type == 'extract_terms':
-            # 处理术语提取请求
+            # Handle term extraction request
             text = payload.get('text', '')
             terms = run_extraction(text)
+            
+            # 返回的中文术语通过 JSON 传输，不会乱码
             send_message('extract_terms_result', {
                 'success': True,
-                'terms': terms,
-                'count': len(terms)
+                'terms': terms,  # 可以包含中文术语，如 ['角色', '技能', 'NPC']
+                'count': len(terms),
+                'source_text': text  # 原文也可以是中文
             })
             
         elif msg_type == 'translate':
-            # 处理翻译请求
+            # Handle translation request
             text = payload.get('text', '')
-            # TODO: 实现翻译逻辑
+            source_lang = payload.get('source_lang', 'auto')
+            target_lang = payload.get('target_lang', 'zh-CN')
+            
+            # TODO: 实现真正的翻译逻辑
+            # 这里的中文数据通过 JSON 传输，完全没有编码问题
             send_message('translate_result', {
                 'success': True,
                 'original': text,
-                'translated': f'[Translated] {text}'
+                'translated': f'【已翻译】{text}',  # JSON 中的中文没问题
+                'source_lang': source_lang,
+                'target_lang': target_lang,
+                'metadata': {
+                    'engine': '翻译引擎名称',  # 中文也没问题
+                    'confidence': 0.95,
+                    'alternatives': ['备选翻译1', '备选翻译2']  # 中文数组也没问题
+                }
             })
             
         elif msg_type == 'ping':

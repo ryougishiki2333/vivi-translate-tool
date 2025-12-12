@@ -72,15 +72,18 @@ function PythonStatus(): React.JSX.Element {
             style={{
               maxHeight: '200px',
               overflow: 'auto',
-              background: '#f5f5f5',
+              background: '#2d2d2d',
+              color: '#e0e0e0',
               padding: '10px',
               borderRadius: '4px',
-              fontSize: '12px'
+              fontSize: '12px',
+              fontFamily: 'Consolas, Monaco, monospace'
             }}
           >
             {messages.map((msg, index) => (
               <div key={index} style={{ marginBottom: '5px' }}>
-                <strong>{msg.type}:</strong> {JSON.stringify(msg.data || {})}
+                <strong style={{ color: '#61dafb' }}>{msg.type}:</strong>{' '}
+                {JSON.stringify(msg.data || {})}
               </div>
             ))}
           </div>
