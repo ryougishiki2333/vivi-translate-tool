@@ -2,6 +2,8 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { PythonShell } from 'python-shell'
+import { existsSync } from 'fs'
 
 function createWindow(): void {
   // Create the browser window.
@@ -51,6 +53,87 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  // 初始化 Python Shell
+  // 根据开发/生产环境确定 Python 路径
+  let pythonPath: string
+  let scriptPath: string
+
+  if (is.dev) {
+    // 开发环境：使用项目根目录下的 venv
+    const devPythonPath = join(__dirname, '../../python/venv/Scripts/python.exe')
+    const devScriptPath = join(__dirname, '../../')
+    
+    pythonPath = existsSync(devPythonPath) ? devPythonPath : 'python'
+    scriptPath = devScriptPath
+    
+    console.log('[DEV] Python Path:', pythonPath)
+    console.log('[DEV] Script Path:', scriptPath)
+  } else {
+    // 生产环境：使用打包后的路径
+    pythonPath = join(process.resourcesPath, 'python/venv/Scripts/python.exe')
+    scriptPath = join(process.resourcesPath, 'python')
+    
+    console.log('[PROD] Python Path:', pythonPath)
+  }
+
+  const pyshell = new PythonShell('python/main.py', {
+    mode: 'json',
+    pythonPath: pythonPath,
+    scriptPath: scriptPath
+  })
+
+  pyshell.on('message', function (message) {
+    console.log('[Python Message]', message.type, ':', JSON.stringify(message.data, null, 2))
+    
+    // 特别处理 ready 消息
+    if (message.type === 'ready') {
+      console.log('[Python Backend] Initialized successfully!')
+      console.log('  Version:', message.data.version)
+      console.log('  Python:', message.data.python_version?.split(' ')[0])
+    }
+    
+    // 通过 mainWindow.webContents.send 发给 React
+    const windows = BrowserWindow.getAllWindows()
+    if (windows.length > 0) {
+      windows[0].webContents.send('python-message', message)
+    }
+  })
+
+  pyshell.on('error', function (err) {
+    console.error('[Python Error]', err.message)
+    console.error('[Python Stack]', err.stack)
+    // 将错误也发送到渲染进程
+    const windows = BrowserWindow.getAllWindows()
+    if (windows.length > 0) {
+      windows[0].webContents.send('python-message', {
+        type: 'error',
+        data: {
+          message: err.message,
+          stack: err.stack
+        }
+      })
+    }
+  })
+  
+  pyshell.on('stderr', function (stderr) {
+    console.error('[Python stderr]', stderr)
+  })
+
+  pyshell.on('close', function () {
+    console.log('[Python] Process closed')
+  })
+
+  // IPC 通信：从渲染进程发送消息到 Python
+  ipcMain.on('python-command', (_, command) => {
+    console.log('[IPC -> Python]', JSON.stringify(command))
+    try {
+      pyshell.send(command)
+      console.log('[IPC -> Python] Message sent successfully')
+    } catch (err) {
+      console.error('[IPC -> Python] Failed to send:', err)
+    }
+  })
 
   createWindow()
 

@@ -1,4 +1,5 @@
 import Versions from './components/Versions'
+import PythonStatus from './components/PythonStatus'
 import electronLogo from './assets/electron.svg'
 
 function App(): React.JSX.Element {
@@ -28,6 +29,7 @@ function App(): React.JSX.Element {
         </div>
       </div>
       <Versions></Versions>
+      <PythonStatus></PythonStatus>
     </>
   )
 }

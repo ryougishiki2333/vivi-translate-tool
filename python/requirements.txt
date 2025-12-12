@@ -1,0 +1,89 @@
+# System
+pyinstaller
+openai
+boto3
+cohere
+anthropic
+google-genai
+tiktoken
+numpy
+openpyxl
+PyQt5
+PyQt-Fluent-Widgets[full]
+opencc
+beautifulsoup4
+lxml
+chardet
+charset-normalizer
+PyYAML
+requests
+httpx[http2,socks]
+
+# Tools
+polib
+pandas
+rich
+tqdm
+jaconv
+python-rapidjson
+protobuf==4.25.7
+language-data
+langcodes
+msgspec
+json-repair
+
+# NER
+spacy
+sudachipy
+sudachidict-core
+
+# mediapipe
+absl-py
+attrs>=19.1.0
+flatbuffers>=2.0
+matplotlib
+sounddevice>=0.4.4
+
+# BabelDOC
+# onnx 新版本存在兼容性问题，建议使用 onnx==1.16.1 onnxruntime==1.20.1
+# rapidocr-onnxruntime 依赖的是 opencv-python，这里去掉了 opencv-python-headless
+# 如使用 babeldoc.document_il.midend.detect_scanned_file.DetectScannedFile 需添加 scikit-image>=0.25.2
+bitstring>=4.3.0
+configargparse>=1.7
+huggingface-hub>=0.27.0
+numpy>=2.0.2
+onnx==1.16.1
+onnxruntime==1.20.1
+openai>=1.59.3
+orjson>=3.10.14
+pdfminer-six==20250416
+peewee>=3.17.8
+psutil>=7.0.0
+pymupdf>=1.25.1
+rich>=13.9.4
+toml>=0.10.2
+tqdm>=4.67.1
+xsdata[cli,lxml,soap]>=24.12
+msgpack>=1.1.0
+pydantic>=2.10.6
+tenacity>=9.0.0
+freetype-py>=2.5.1
+tiktoken>=0.9.0
+python-levenshtein>=0.27.1
+rapidocr-onnxruntime>=1.4.4
+pyzstd
+rtree
+scikit-learn>=1.7.1
+
+# 无依赖安装 (使用 pip install --no-deps)
+# mediapipe==0.10.14
+# BabelDOC// ...existing code...
+
+  // 初始化 Python Shell
+  const pyshell = new PythonShell('python/main.py', {
+    mode: 'json',
+    pythonPath: join(__dirname, '../../python/venv/Scripts/python.exe'), // 使用 venv 中的 python
+    scriptPath: join(__dirname, '../../') // 根据打包结构调整
+  })
+
+// ...existing code...
